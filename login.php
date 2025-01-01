@@ -20,8 +20,8 @@ if ($conn->connect_error) {
 $error = '';
 $success = '';
 
-// Get user type from the URL parameter (hidden from user)
-$userType = isset($_GET['type']) ? $_GET['type'] : ''; // 'passenger' or 'company'
+// Get user type from the URL parameter
+$userType = isset($_GET['userType']) ? $_GET['userType'] : ''; // 'passenger' or 'company'
 
 // Check if userType is valid
 if (!in_array($userType, ['passenger', 'company'])) {
@@ -89,7 +89,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../CSS-File/styles.css">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
