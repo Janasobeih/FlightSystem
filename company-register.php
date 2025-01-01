@@ -90,8 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         if ($stmt->execute()) {
                             $success = "Registration successful!";
-                            header("Location: login.php"); // Redirect to login.php after successful registration
-                            exit(); // Make sure no further code is executed after the redirection
+                            $_SESSION['userType'] = 'company';
+                            header("Location: login.php?userType=company");
+                            exit();
                         } else {
                             $error = "Error executing query: " . $stmt->error;
                         }
@@ -115,7 +116,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Registration</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../CSS-File/styles.css">
     <script>
         // Hide the success or error message after 5 seconds
         function hideMessage() {
