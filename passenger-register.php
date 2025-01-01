@@ -65,7 +65,7 @@ $conn->close(); // Close the connection
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passenger Registration</title>
     <!-- Link to CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../CSS-File/styles.css">
 </head>
 <body>
 
