@@ -22,7 +22,7 @@ if (isset($_SESSION['user_role'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <!-- Link to the CSS file -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../CSS-File/styles.css">
 </head>
 <body>
     <div class="landing-container">
