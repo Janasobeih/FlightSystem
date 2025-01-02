@@ -36,7 +36,20 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+// Fetch flights associated with the logged-in user
+$flights_sql = "SELECT f.flight_id, f.departure, f.arrival, fp.status 
+                FROM flight_passengers fp
+                JOIN flights f ON fp.flight_id = f.flight_id
+                WHERE fp.passenger_id = ?";
+
+$flights_stmt = $conn->prepare($flights_sql);
+$flights_stmt->bind_param("i", $user_id);
+$flights_stmt->execute();
+$flights_result = $flights_stmt->get_result();
+
+// Close statements
 $stmt->close();
+$flights_stmt->close();
 $conn->close();
 ?>
 
@@ -58,22 +71,37 @@ $conn->close();
             <p class="profile-tel">Tel: <?php echo htmlspecialchars($user['phone']); ?></p>
         </div>
 
-        <!-- Flight Sections (Static for Now) -->
+        <!-- Flight Sections -->
         <div class="flights-section">
             <div class="completed-flights">
                 <h3>Completed Flights</h3>
                 <ul>
-                    <li>Flight 1: New York to Los Angeles</li>
-                    <li>Flight 2: Paris to London</li>
-                    <li>Flight 3: Tokyo to Sydney</li>
+                    <?php
+                    // Fetch and display completed flights
+                    while ($flight = $flights_result->fetch_assoc()) {
+                        if ($flight['status'] == 'completed') {
+                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
+                        }
+                    }
+                    ?>
                 </ul>
             </div>
 
             <div class="current-flights">
                 <h3>Current Flights</h3>
                 <ul>
-                    <li>Flight 1: Berlin to Rome (Pending)</li>
-                    <li>Flight 2: Cairo to Dubai (Pending)</li>
+                    <?php
+                    // Reset the result pointer and fetch again for current flights
+                    $flights_result->data_seek(0);
+                    while ($flight = $flights_result->fetch_assoc()) {
+                        if ($flight['status'] == 'pending') {
+                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
+                        }
+if ($flight['status'] == 'registered') {
+                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
+                        }
+                    }
+                    ?>
                 </ul>
             </div>
         </div>
