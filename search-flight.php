@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Both origin and destination are required.";
     } else {
         // Search for flights based on departure and arrival
-        $sql = "SELECT flight_name, departure, arrival, flight_time, fees FROM flights WHERE departure = ? AND arrival = ?";
+        $sql = "SELECT flight_id, flight_name, departure, arrival, flight_time, fees FROM flights WHERE departure = ? AND arrival = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $departure, $arrival);
         $stmt->execute();
@@ -104,21 +104,21 @@ $conn->close();
                     </tr>
                 </thead>
                 <tbody id="flight-rows">
-                    <?php if (!empty($flights)): ?>
-                        <?php foreach ($flights as $flight): ?>
-                            <tr onclick="window.location.href='flight-info.html?id=<?php echo htmlspecialchars($flight['flight_name']); ?>'">
-                                <td><?php echo htmlspecialchars($flight['flight_name']); ?></td>
-                                <td><?php echo htmlspecialchars($flight['departure']); ?></td>
-                                <td><?php echo htmlspecialchars($flight['arrival']); ?></td>
-                                <td><?php echo htmlspecialchars($flight['flight_time']); ?></td>
-                                <td><?php echo htmlspecialchars($flight['fees']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5">No flights available.</td>
-                        </tr>
-                    <?php endif; ?>
+                 <?php if (!empty($flights)): ?>
+                 <?php foreach ($flights as $flight): ?>
+                 <tr onclick="window.location.href='flight-info.php?id=<?php echo htmlspecialchars($flight['flight_id']); ?>'">
+                 <td><?php echo htmlspecialchars($flight['flight_name']); ?></td>
+                 <td><?php echo htmlspecialchars($flight['departure']); ?></td>
+                 <td><?php echo htmlspecialchars($flight['arrival']); ?></td>
+                 <td><?php echo htmlspecialchars($flight['flight_time']); ?></td>
+                 <td><?php echo htmlspecialchars($flight['fees']); ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <tr>
+                    <td colspan="5">No flights available.</td>
+                </tr>
+                <?php endif; ?>
                 </tbody>
             </table>
         </div>
