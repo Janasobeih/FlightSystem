@@ -1,13 +1,13 @@
 <?php
 session_start(); // Start the session
+
 // Check if the user is logged in as a company
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'company') {
-
     header("Location: login.php?type=company");
     exit();
 }
-$company_id = $_SESSION['user_id']; 
 
+$company_id = $_SESSION['user_id']; // Get the company ID from the session
 
 $host = 'localhost';
 $dbname = 'travel';
@@ -22,9 +22,12 @@ if (!$connect) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
+// Fetch messages from the database with sender's name
+$query = "SELECT u.full_name AS sender_name, m.message
+          FROM messages m
+          JOIN passengers u ON m.sender = u.id
+          WHERE m.company_id = $company_id";
 
-// Fetch messages from the database
-$query = "SELECT * FROM messages WHERE company_id = $company_id";
 $result = mysqli_query($connect, $query);
 
 // Check if the query was successful
@@ -37,7 +40,6 @@ $messages = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Close the connection
 mysqli_close($connect);
-
 ?>
 
 <!DOCTYPE html>
@@ -66,10 +68,9 @@ mysqli_close($connect);
             </thead>
             <tbody>
                 <?php
-            
                 foreach ($messages as $message) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($message['sender']) . "</td>";
+                    echo "<td>" . htmlspecialchars($message['sender_name']) . "</td>"; // Display sender's name
                     echo "<td>" . htmlspecialchars($message['message']) . "</td>";
                     echo "</tr>";
                 }
@@ -84,23 +85,23 @@ mysqli_close($connect);
         </div>
 
         <div class="button" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-        <button onclick="window.location.href='../HTML-Files/company-dashboard.php'" 
-            style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;" 
-            onmouseover="this.style.backgroundColor='#0056b3'; this.style.transform='scale(1.05)';"
-            onmouseout="this.style.backgroundColor='#007bff'; this.style.transform='scale(1)';"
-            onclick="this.classList.add('clicked'); setTimeout(() => this.classList.remove('clicked'), 200);">
-            Back to Dashboard
-    </button>
-</div>
+            <button onclick="window.location.href='../HTML-Files/company-dashboard.php'" 
+                style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;" 
+                onmouseover="this.style.backgroundColor='#0056b3'; this.style.transform='scale(1.05)';"
+                onmouseout="this.style.backgroundColor='#007bff'; this.style.transform='scale(1)';"
+                onclick="this.classList.add('clicked'); setTimeout(() => this.classList.remove('clicked'), 200);">
+                Back to Dashboard
+            </button>
+        </div>
 
-<style>
-    /* Button clicked animation */
-    .button button.clicked {
-        transform: scale(0.95);
-        opacity: 0.8;
-        transition: transform 0.2s ease, opacity 0.2s ease;
-    }
-</style>
+        <style>
+            /* Button clicked animation */
+            .button button.clicked {
+                transform: scale(0.95);
+                opacity: 0.8;
+                transition: transform 0.2s ease, opacity 0.2s ease;
+            }
+        </style>
 
     </div>
 
