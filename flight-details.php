@@ -39,8 +39,6 @@ $flight_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 $query = "SELECT * FROM flights WHERE flight_id = $flight_id";
 $result = mysqli_query($connect, $query);
 
-
-
 $query = "SELECT * FROM companies WHERE id = $company_id";
 $result1 = mysqli_query($connect, $query);
 
@@ -55,6 +53,45 @@ if (!$result) {
 }
 
 $flight = mysqli_fetch_assoc($result);
+
+// Fetch pending passengers
+$query_pending = "
+    SELECT p.full_name 
+    FROM flight_passengers fp 
+    JOIN passengers p ON fp.passenger_id = p.id 
+    WHERE fp.flight_id = $flight_id AND fp.status = 'pending'"; // Assuming 'pending' is the status of pending passengers
+
+$result_pending_passengers = mysqli_query($connect, $query_pending);
+
+if (!$result_pending_passengers) {
+    die("Query failed: " . mysqli_error($connect));
+}
+
+$pending_passengers = [];
+while ($row = mysqli_fetch_assoc($result_pending_passengers)) {
+    $pending_passengers[] = $row['full_name']; // Add passenger names to the array
+}
+
+// Fetch registered passengers
+$query_registered = "
+    SELECT p.full_name 
+    FROM flight_passengers fp 
+    JOIN passengers p ON fp.passenger_id = p.id 
+    WHERE fp.flight_id = $flight_id AND fp.status = 'registered'"; // Assuming 'registered' is the status of registered passengers
+
+$result_registered_passengers = mysqli_query($connect, $query_registered);
+
+if (!$result_registered_passengers) {
+    die("Query failed: " . mysqli_error($connect));
+}
+
+$registered_passengers = [];
+while ($row = mysqli_fetch_assoc($result_registered_passengers)) {
+    $registered_passengers[] = $row['full_name']; // Add passenger names to the array
+}
+
+mysqli_free_result($result_pending_passengers);
+mysqli_free_result($result_registered_passengers);
 
 mysqli_close($connect);
 ?>
@@ -86,12 +123,14 @@ mysqli_close($connect);
         <section class="passenger-list">
             <h3>Pending Passengers</h3>
             <ul id="pending-passengers">
+                <!-- Pending passengers will be added here dynamically -->
             </ul>
         </section>
 
         <section class="passenger-list">
             <h3>Registered Passengers</h3>
             <ul id="registered-passengers">
+                <!-- Registered passengers will be added here dynamically -->
             </ul>
         </section>
 
@@ -106,6 +145,28 @@ mysqli_close($connect);
 
     <script src="../JS-File/script.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const pendingPassengers = <?php echo json_encode($pending_passengers); ?>; // Pass the array of names from PHP to JS
+            const registeredPassengers = <?php echo json_encode($registered_passengers); ?>; // Pass the array of names from PHP to JS
+
+            const pendingPassengersList = document.getElementById("pending-passengers");
+            const registeredPassengersList = document.getElementById("registered-passengers");
+            
+            // Add each pending passenger to the list
+            pendingPassengers.forEach(function(name) {
+                const listItem = document.createElement("li");
+                listItem.textContent = name; // Set the passenger name
+                pendingPassengersList.appendChild(listItem);
+            });
+
+            // Add each registered passenger to the list
+            registeredPassengers.forEach(function(name) {
+                const listItem = document.createElement("li");
+                listItem.textContent = name; // Set the passenger name
+                registeredPassengersList.appendChild(listItem);
+            });
+        });
+
         document.getElementById("cancel-flight-btn").addEventListener("click", function() {
             const flightId = this.getAttribute("data-flight-id");
 
