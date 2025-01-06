@@ -279,6 +279,13 @@ mysqli_close($connect);
                 <button type="submit">Send Message</button>
             </form>
         </div>
+
+        <div class="payment-options">
+            <a href="passenger-dashboard.php">
+            <button style="width: 100%; padding: 15px; background-color: #007bff; border: none; color: white; font-size: 16px;">Back</button></a>
+        </div>
+
+
     </div>
 
     <script>
