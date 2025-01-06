@@ -24,10 +24,11 @@ $error = null;
 $successMessage = null;
 $errorMessage = null;
 $isAlreadyRegistered = false;
+$passengerLimitReached = false;
 
 if ($flight_id) {
-    // Fetch flight details from the database
-    $query = "SELECT flight_name, departure, arrival, flight_time, fees, company_id FROM flights WHERE flight_id = ?";
+    // Fetch flight details from the database, including num_of_passengers (passenger limit)
+    $query = "SELECT flight_name, departure, arrival, flight_time, fees, company_id, num_of_passengers FROM flights WHERE flight_id = ?";
     $stmt = $connect->prepare($query);
 
     if ($stmt === false) {
@@ -40,6 +41,19 @@ if ($flight_id) {
 
     if ($result->num_rows > 0) {
         $flight = $result->fetch_assoc();
+
+        // Fetch the number of registered passengers for the flight
+        $query = "SELECT COUNT(*) AS registered_count FROM flight_passengers WHERE flight_id = ? AND status = 'registered'";
+        $stmt = $connect->prepare($query);
+        $stmt->bind_param("i", $flight_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $registeredCount = $result->fetch_assoc()['registered_count'];
+
+        // Check if the number of registered passengers has reached the limit
+        if ($registeredCount >= $flight['num_of_passengers']) {
+            $passengerLimitReached = true;
+        }
 
         // Check if the user is already registered for this flight
         $user_id = $_SESSION['user_id'];
@@ -95,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 if (isset($_POST['payment_method'])) {
     if ($isAlreadyRegistered) {
         $errorMessage = "You're already on that flight.";
+    } elseif ($passengerLimitReached) {
+        $errorMessage = "The flight has reached its passenger limit.";
     } else {
         $payment_method = $_POST['payment_method'];
         $flight_fees = $flight['fees'] ?? 0;
@@ -197,6 +213,7 @@ if (isset($_POST['payment_method'])) {
 
 mysqli_close($connect);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
