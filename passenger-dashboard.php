@@ -37,7 +37,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch flights associated with the logged-in user
-$flights_sql = "SELECT f.flight_id, f.departure, f.arrival, fp.status 
+$flights_sql = "SELECT f.flight_id, f.departure, f.arrival, f.flight_time, fp.status 
                 FROM flight_passengers fp
                 JOIN flights f ON fp.flight_id = f.flight_id
                 WHERE fp.passenger_id = ?";
@@ -50,6 +50,8 @@ $flights_result = $flights_stmt->get_result();
 // Close statements
 $stmt->close();
 $flights_stmt->close();
+
+// Close the database connection
 $conn->close();
 ?>
 
@@ -79,8 +81,22 @@ $conn->close();
                     <?php
                     // Fetch and display completed flights
                     while ($flight = $flights_result->fetch_assoc()) {
-                        if ($flight['status'] == 'completed') {
-                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
+                        // Check if the flight date has passed
+                        if (strtotime($flight['flight_time']) < time()) {
+                            // Flight has passed, mark it as completed
+                            if ($flight['status'] != 'completed') {
+                                // Update the flight status to 'completed' in the database
+                                $conn = new mysqli($servername, $username, $password, $dbname);
+                                $update_status_sql = "UPDATE flight_passengers SET status = 'completed' WHERE flight_id = ? AND passenger_id = ?";
+                                $update_status_stmt = $conn->prepare($update_status_sql);
+                                $update_status_stmt->bind_param("ii", $flight['flight_id'], $user_id);
+                                $update_status_stmt->execute();
+                                $update_status_stmt->close();
+                                $conn->close();
+                            }
+
+                            // Display the completed flight
+                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: Completed</li>";
                         }
                     }
                     ?>
@@ -94,10 +110,8 @@ $conn->close();
                     // Reset the result pointer and fetch again for current flights
                     $flights_result->data_seek(0);
                     while ($flight = $flights_result->fetch_assoc()) {
-                        if ($flight['status'] == 'pending') {
-                            echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
-                        }
-if ($flight['status'] == 'registered') {
+                        // Check if the flight is pending or registered
+                        if (strtotime($flight['flight_time']) >= time() && ($flight['status'] == 'pending' || $flight['status'] == 'registered')) {
                             echo "<li>Flight: " . htmlspecialchars($flight['departure']) . " to " . htmlspecialchars($flight['arrival']) . " - Status: " . htmlspecialchars($flight['status']) . "</li>";
                         }
                     }
