@@ -31,8 +31,8 @@ if (isset($_SESSION['user_role'])) {
             <h1>Welcome to BlueSkies Travel</h1>
             <p>Choose your role to continue:</p>
             <div class="buttons">
-                <a href="login.php?type=passenger" class="btn">Passenger</a>
-                <a href="login.php?type=company" class="btn">Company</a>
+                <a href="login.php?userType=passenger" class="btn">Passenger</a>
+                <a href="login.php?userType=company" class="btn">Company</a>
             </div>
         </div>
     </div>
