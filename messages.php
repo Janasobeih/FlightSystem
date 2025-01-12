@@ -3,7 +3,7 @@ session_start(); // Start the session
 
 // Check if the user is logged in as a company
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'company') {
-    header("Location: login.php?type=company");
+    echo json_encode(["success" => false, "message" => "Unauthorized access."]);
     exit();
 }
 
@@ -19,28 +19,61 @@ $connect = mysqli_connect($host, $username, $password, $dbname);
 
 // Check connection
 if (!$connect) {
-    die("Database connection failed: " . mysqli_connect_error());
+    echo json_encode(["success" => false, "message" => "Database connection failed: " . mysqli_connect_error()]);
+    exit();
 }
 
-// Fetch messages from the database with sender's name
-$query = "SELECT u.full_name AS sender_name, m.message
+$query = "SELECT m.*, p.full_name, c.company_name 
           FROM messages m
-          JOIN passengers u ON m.sender = u.id
-          WHERE m.company_id = $company_id";
+          LEFT JOIN passengers p ON m.sender = p.id
+          LEFT JOIN companies c ON m.company_id = c.id
+          WHERE m.company_id = ?";
 
-$result = mysqli_query($connect, $query);
+$stmt = $connect->prepare($query);
 
-// Check if the query was successful
-if (!$result) {
-    die("Query failed: " . mysqli_error($connect));
+if ($stmt === false) {
+    // Handle the error: prepared statement failed
+    exit();
 }
 
-// Fetch all the messages as an associative array
-$messages = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$stmt->bind_param("i", $company_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$messages = $result->fetch_all(MYSQLI_ASSOC);
 
-// Close the connection
+// Handle form submission for replying
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message_id'], $_POST['reply'])) {
+    $message_id = $_POST['message_id']; // Get the message_id from the form
+    $reply = trim($_POST['reply']); // Get the reply from the form
+
+    if (!empty($reply)) {
+        // Prepare the update query to reply by message_id
+        $updateQuery = "UPDATE messages SET reply = ? WHERE message_id = ? AND company_id = ?";
+
+        $stmt = $connect->prepare($updateQuery);
+
+        if ($stmt === false) {
+            // Handle the error: prepared statement failed
+            exit();
+        }
+        
+
+        // Bind parameters
+        $stmt->bind_param("sii", $reply, $message_id, $company_id);
+
+        // Execute and check if successful
+        if ($stmt->execute()) {
+        } else {
+            echo json_encode(["success" => false, "message" => "Failed to send reply: " . mysqli_error($connect)]);
+        }
+        
+        $stmt->close();
+    }
+}
+
 mysqli_close($connect);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,8 +84,6 @@ mysqli_close($connect);
     <link rel="stylesheet" href="../CSS-File/messages.css">
 </head>
 <body>
-
-    <!-- Messages Container -->
     <div class="messages-container">
         <header class="messages-header">
             <h1>Messages</h1>
@@ -64,48 +95,34 @@ mysqli_close($connect);
                 <tr>
                     <th>Sender</th>
                     <th>Message</th>
+                    <th>Reply</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
-                foreach ($messages as $message) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($message['sender_name']) . "</td>"; // Display sender's name
-                    echo "<td>" . htmlspecialchars($message['message']) . "</td>";
-                    echo "</tr>";
-                }
-                ?>
+                <?php if (empty($messages)): ?>
+                    <tr>
+                        <td colspan="4">No messages found.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($messages as $message): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($message['full_name'] ?? 'Unknown Sender'); ?></td>
+                            <td><?= htmlspecialchars($message['message']); ?></td>
+                            <td><?= htmlspecialchars($message['reply'] ?? 'No reply yet'); ?></td>
+                            <td>
+                                <form action="" method="POST">
+                                    <textarea name="reply" placeholder="Type your reply here..."></textarea>
+                                    <!-- Hidden input to send the message_id -->
+                                    <input type="hidden" name="message_id" value="<?= htmlspecialchars($message['message_id']); ?>">
+                                    <button type="submit">Reply</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
-
-        <!-- Reply Input (Initially Hidden) -->
-        <div class="reply-section" id="replySection" style="display: none;">
-            <textarea id="responseText" placeholder="Type your response here..."></textarea>
-            <button class="send-reply-btn">Send Reply</button>
-        </div>
-
-        <div class="button" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-            <button onclick="window.location.href='../HTML-Files/company-dashboard.php'" 
-                style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease;" 
-                onmouseover="this.style.backgroundColor='#0056b3'; this.style.transform='scale(1.05)';"
-                onmouseout="this.style.backgroundColor='#007bff'; this.style.transform='scale(1)';"
-                onclick="this.classList.add('clicked'); setTimeout(() => this.classList.remove('clicked'), 200);">
-                Back to Dashboard
-            </button>
-        </div>
-
-        <style>
-            /* Button clicked animation */
-            .button button.clicked {
-                transform: scale(0.95);
-                opacity: 0.8;
-                transition: transform 0.2s ease, opacity 0.2s ease;
-            }
-        </style>
-
     </div>
-
-    <script src="../JS-File/script.js"></script>
-
 </body>
 </html>
