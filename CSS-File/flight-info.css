@@ -1,0 +1,158 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    position: relative;
+}
+
+/* Background Image with Blur */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../Images/Background.jpg') no-repeat center center/cover;
+    filter: blur(8px);
+    z-index: -1;
+} 
+.container {
+    background-color: rgba(40, 28, 28, 0.9); /* Slightly more opaque background */
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Headings */
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: #ffffff;
+}
+
+/* Flight Details Table */
+.flight-details {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    color: white;
+}
+
+.flight-details th, .flight-details td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #fff;
+}
+
+.flight-details th {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: rgb(255, 255, 255);
+}
+
+.flight-details td {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Payment Options */
+/* Payment Options */
+.payment-options {
+    display: flex;
+    flex-direction: column; /* Stack the text and buttons vertically */
+    align-items: center; /* Center align items horizontally */
+    margin: 20px 0;
+}
+
+.payment-options h2 {
+    text-align: center; /* Ensure the heading is centered */
+    width: 100%; /* Use the full width to position it centrally */
+    margin-bottom: 15px; /* Add spacing between the text and buttons */
+    color: #ffffff; /* Keep the font color consistent */
+    font-size: 1.8rem; /* Adjust font size if needed */
+}
+
+.payment-options button {
+    padding: auto; /* Use automatic padding to adjust size */
+    margin: 10px 0; /* Add vertical spacing between buttons */
+    font-size: 1.2rem; /* Adjust font size for better readability */
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 50%;
+}
+
+
+.payment-options button:hover {
+    background-color: #0056b3;
+}
+
+/* Message Section */
+.message-section {
+    margin: 20px 0;
+}
+
+.message-section textarea {
+    width: 90%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    resize: none;
+
+}
+
+.message-section button {
+    display: block;
+    width: auto;
+    padding: 10px 20px;
+    margin: 10px auto;
+    font-size: 1rem;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.message-section button:hover {
+    background-color: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .payment-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .payment-options button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+#payment-message {
+    color: white; /* Set the text color to white */
+    font-size: 1.2rem; /* Optional: Adjust font size for better readability */
+    margin-top: 10px; /* Optional: Add some spacing above the message */
+    text-align: center; /* Optional: Center-align the message */
+}
+

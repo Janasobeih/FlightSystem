@@ -1,0 +1,135 @@
+/* Wrapper for the whole page */
+.search-flight-container-wrapper {
+    position: relative; /* Ensure the wrapper content stays on top */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    z-index: 1; /* Keep the content above the blurred background */
+}
+
+/* Add blurred background to the entire page */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../Images/Background.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(10px); /* Apply blur effect */
+    z-index: -1; /* Make sure it stays behind all content */
+}
+
+/* Search Flight Box */
+.search-flight-box {
+    background-color: rgba(35, 30, 30, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50%;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-flight-box h1 {
+    font-size:2rem;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.search-flight-box .form-group {
+    margin-bottom: 15px;
+    width: 98%;
+    font-size: 1.2rem;
+}
+
+.search-flight-box .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.search-flight-box .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #030000;
+    border-radius: 5px;
+}
+
+.search-flight-box button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-flight-box button:hover {
+    background-color: #0056b3;
+}
+
+/* Flight List Container */
+.flight-list-container {
+    width: 80%;
+    background-color:rgba(35, 30, 30, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.flight-list-container h2 {
+    color: white;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size:2rem;
+}
+
+.flight-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #1c1313;
+
+
+}
+
+.flight-list th, .flight-list td {
+    padding: 10px;
+    border: 1px solid #15489b;
+    text-align: center;
+}
+
+.flight-list th {
+    background-color: #1c1313;
+    font-weight: bold;
+}
+
+.flight-list tr:hover {
+    background-color: #15489b;
+    cursor: pointer;
+}
+.search-flight-box .form-group textarea {
+    width: 103.5%; /* Matches the width of input fields */
+    padding: 10px; /* Same padding as input fields */
+    border: 1px solid #030000; /* Matches the border style of input fields */
+    border-radius: 5px; /* Matches the border radius of input fields */
+    resize: none; /* Prevent resizing to maintain consistency */
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
